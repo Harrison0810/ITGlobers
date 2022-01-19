@@ -1,5 +1,8 @@
-﻿using ManageOwnerships.Domain.Models;
+﻿using ManageOwnerships.Domain.Helpers;
+using ManageOwnerships.Domain.Models;
 using ManageOwnerships.Domain.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -8,8 +11,9 @@ namespace ManageOwnerships.Web.Controllers
     /// <summary>
     /// Ownership Controller
     /// </summary>
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiVersion("1.0")]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class OwnershipController : ControllerBase
     {
@@ -28,7 +32,7 @@ namespace ManageOwnerships.Web.Controllers
         [Route("GetAllOwnerships")]
         public JsonResult GetAllOwnerships()
         {
-            int ownerId = 0; // Get from token
+            int ownerId = TokenHelper.GetOwnerId(HttpContext);
             return new JsonResult(_ownershipsService.GetAllOwnerships(ownerId));
         }
 
@@ -41,7 +45,7 @@ namespace ManageOwnerships.Web.Controllers
         [Route("GetOwnership/{ownershipId}")]
         public JsonResult GetOwnership(int ownershipId)
         {
-            int ownerId = 0; // Get from token
+            int ownerId = TokenHelper.GetOwnerId(HttpContext);
             return new JsonResult(_ownershipsService.GetOwnership(ownershipId, ownerId));
         }
 
@@ -54,7 +58,7 @@ namespace ManageOwnerships.Web.Controllers
         [Route("UpdateOwnership")]
         public JsonResult UpdateOwnership([FromBody] OwnershipModel ownershipModel)
         {
-            ownershipModel.OwnerId = 0; // Get ownerId from token
+            ownershipModel.OwnerId = TokenHelper.GetOwnerId(HttpContext);
             return new JsonResult(_ownershipsService.UpdateOwnership(ownershipModel));
         }
 
@@ -67,7 +71,7 @@ namespace ManageOwnerships.Web.Controllers
         [Route("DeleteOwnership/{ownershipId}")]
         public JsonResult DeleteOwnership(int ownershipId)
         {
-            int ownerId = 0; // Get ownerId from token
+            int ownerId = TokenHelper.GetOwnerId(HttpContext);
             return new JsonResult(_ownershipsService.DeleteOwnership(ownershipId, ownerId));
         }
 
@@ -80,7 +84,7 @@ namespace ManageOwnerships.Web.Controllers
         [Route("AddOwnership")]
         public async Task<JsonResult> AddOwnership([FromBody] OwnershipModel ownershipModel)
         {
-            ownershipModel.OwnerId = 0; // Get ownerId from token
+            ownershipModel.OwnerId = TokenHelper.GetOwnerId(HttpContext);
             return new JsonResult(await _ownershipsService.AddOwnership(ownershipModel));
         }
     }

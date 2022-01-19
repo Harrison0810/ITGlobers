@@ -1,4 +1,6 @@
-﻿namespace ManageOwnerships.Infrastructure.Contracts
+﻿using System.Collections.Generic;
+
+namespace ManageOwnerships.Infrastructure.Contracts
 {
     public class OwnershipContract
     {
@@ -9,5 +11,7 @@
         public decimal Price { get; set; }
         public int Year { get; set; }
         public int OwnerId { get; set; }
+
+        public List<OwnershipImageContract> OwnershipImages { get; set; }
     }
 }

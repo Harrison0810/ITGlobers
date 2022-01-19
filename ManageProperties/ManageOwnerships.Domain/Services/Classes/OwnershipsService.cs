@@ -38,19 +38,6 @@ namespace ManageOwnerships.Domain.Services
                 // Add Ownership
                 ownershipContract = _dbManageOwnershipsRepository.Ownership.Add(ownershipContract);
 
-                foreach (OwnershipImageModel ownershipImage in ownershipModel.OwnershipImages)
-                {
-                    OwnershipImageContract ownershipImageContract = new OwnershipImageContract
-                    {
-                        OwnershipId = ownershipImage.OwnershipId,
-                        Enabled = true,
-                        File = ownershipImage.File
-                    };
-
-                    // Add ownership image
-                    _dbManageOwnershipsRepository.OwnershipImage.Add(ownershipImageContract);
-                }
-
                 message.Data = _mapper.Map<OwnershipContract, OwnershipModel>(ownershipContract);
                 message.Status = true;
             }
@@ -92,7 +79,7 @@ namespace ManageOwnerships.Domain.Services
             try
             {
                 // Find owner's ownerships 
-                List<OwnershipContract> ownerships = _dbManageOwnershipsRepository.Ownership.FindBy(x => x.OwnerId == ownerId);
+                List<OwnershipContract> ownerships = _dbManageOwnershipsRepository.Ownership.FindBy(x => x.OwnerId == ownerId, "OwnershipImages");
                 if (ownerships is not null && ownerships.Count > 0)
                 {
                     message.Data = _mapper.Map<List<OwnershipContract>, List<OwnershipModel>>(ownerships);
@@ -124,6 +111,23 @@ namespace ManageOwnerships.Domain.Services
                     entity.Year = contract.Year;
                     return entity;
                 });
+
+                if (ownershipModel.OwnershipImages is not null && ownershipModel.OwnershipImages.Count > 0)
+                {
+                    List<OwnershipImageContract> ownershipImageContracts = _mapper.Map<List<OwnershipImageModel>, List<OwnershipImageContract>>(ownershipModel.OwnershipImages);
+
+                    foreach (OwnershipImageContract ownershipImage in ownershipImageContracts)
+                    {
+                        _dbManageOwnershipsRepository.OwnershipImage.Edit(x => x.OwnershipImageId == ownershipImage.OwnershipImageId,
+                            ownershipImage, (entity, contract) =>
+                        {
+                            entity.File = contract.File;
+                            entity.Enabled = contract.Enabled;
+                            return entity;
+                        });
+                    }
+                }
+
                 message.Status = true;
             }
             catch (Exception Ex)
@@ -140,6 +144,17 @@ namespace ManageOwnerships.Domain.Services
 
             try
             {
+                OwnershipContract ownershipContract = _dbManageOwnershipsRepository.Ownership.FindOne(x => x.OwnershipId == ownershipId && x.OwnerId == ownerId);
+
+                if (ownershipContract is null)
+                {
+                    message.Message = "ownershipId no found.";
+                    return message;
+                }
+
+                // Delete ownership images
+                _dbManageOwnershipsRepository.OwnershipImage.DeleteRange(x => x.OwnershipId == ownershipId);
+
                 // Delete ownership, from ownership id and owner id
                 message.Status = _dbManageOwnershipsRepository.Ownership.Delete(x => x.OwnershipId == ownershipId && x.OwnerId == ownerId);
             }

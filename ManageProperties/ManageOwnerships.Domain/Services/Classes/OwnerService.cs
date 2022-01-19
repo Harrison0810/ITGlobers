@@ -37,7 +37,7 @@ namespace ManageOwnerships.Domain.Services
             {
                 // Encript Password
                 OwnerContract ownerContract = _mapper.Map<OwnerContract>(ownerModel);
-                ownerContract.Password = EncodeService.EncodePassword(ownerModel.Password, _configuration.GetSection("Encription")["Salt"]);
+                ownerContract.Password = EncodeHelper.EncodePassword(ownerModel.Password, _configuration.GetSection("Encription")["Salt"]);
 
                 // Add owner
                 ownerContract = _dbManageOwnershipsRepository.Owner.Add(ownerContract);

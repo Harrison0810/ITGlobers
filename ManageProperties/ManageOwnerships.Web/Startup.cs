@@ -1,6 +1,7 @@
 using ManageOwnerships.Configuration.Config;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,6 +28,9 @@ namespace ManageOwnerships.Web
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ManageOwnerships.Web", Version = "v1" });
             });
 
+            // Api Versioning
+            services.AddApiVersioning();
+
             ContainerConfig.Register(services, Configuration);
         }
 
@@ -43,9 +47,23 @@ namespace ManageOwnerships.Web
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
+            app.UseAuthentication();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseSpa(spa =>
+            {
+                // To learn more about options for serving an Angular SPA from ASP.NET Core,
+                // see https://go.microsoft.com/fwlink/?linkid=864501
+
+                spa.Options.SourcePath = "AppOwnerships";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseAngularCliServer(npmScript: "start");
+                }
             });
 
             // Logger

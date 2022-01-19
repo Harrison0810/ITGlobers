@@ -1,5 +1,7 @@
 ﻿using ManageOwnerships.Domain.Models;
 using ManageOwnerships.Domain.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ManageOwnerships.Web.Controllers
@@ -7,8 +9,9 @@ namespace ManageOwnerships.Web.Controllers
     /// <summary>
     /// Owner controller crud
     /// </summary>
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiVersion("1.0")]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class OwnerController : ControllerBase
     {

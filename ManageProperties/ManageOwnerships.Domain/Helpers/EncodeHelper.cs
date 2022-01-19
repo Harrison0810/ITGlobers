@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ManageOwnerships.Domain.Services.Classes
 {
-    internal static class EncodeService
+    internal static class EncodeHelper
     {
         /// <summary>
         /// Encript password

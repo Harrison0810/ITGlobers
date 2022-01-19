@@ -6,9 +6,12 @@ using ManageOwnerships.Infrastructure.Context;
 using ManageOwnerships.Infrastructure.Contracts;
 using ManageOwnerships.Infrastructure.Entities;
 using ManageOwnerships.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ManageOwnerships.Configuration.Config
 {
@@ -36,7 +39,8 @@ namespace ManageOwnerships.Configuration.Config
             services.AddTransient<IErrorLoggingClient, ErrorLoggingClient>();
             services.AddTransient<IOwnerService, OwnerService>();
             services.AddTransient<IOwnershipsService, OwnershipsService>();
-            
+            services.AddTransient<IUserService, UserService>();
+
             // Auto Mapper Configurations
             MapperConfiguration mapperConfig = new MapperConfiguration(mc =>
             {
@@ -45,6 +49,23 @@ namespace ManageOwnerships.Configuration.Config
 
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
+
+            string key = configuration.GetValue<string>("SecretKey");
+            byte[] secretKey = Encoding.ASCII.GetBytes(key);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                // Jwt
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
         }
     }
 }

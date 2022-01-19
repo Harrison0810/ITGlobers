@@ -4,7 +4,7 @@ namespace ManageOwnerships.Domain.Models
 {
     public class OwnershipModel
     {
-        public int OwnershipId { get; private set; }
+        public int OwnershipId { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
         public string CodeInternal { get; set; }
